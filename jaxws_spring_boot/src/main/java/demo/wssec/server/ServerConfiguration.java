@@ -5,6 +5,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.KeyManager;
@@ -86,7 +87,7 @@ String serviceKeystorePropertyfile = "serviceKeystore.properties";
         propertyMap.put(javax.xml.ws.Endpoint.WSDL_SERVICE, serviceName);
         endpoint.setProperties(propertyMap);
         endpoint.setWsdlLocation(wsdlPath);
-        endpoint.getServerFactory().getJaxWsServiceFactory().setWsFeatures(Arrays.asList(new AddressingFeature()));
+        endpoint.getServerFactory().getJaxWsServiceFactory().setWsFeatures(Arrays.asList(new AddressingFeature(),loggingFeature));
         endpoint.getInInterceptors().add(new SAAJInInterceptor());
         endpoint.getOutInterceptors().add(new SAAJOutInterceptor());
         endpoint.publish(serverAddress);
