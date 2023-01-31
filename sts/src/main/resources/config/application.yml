@@ -1,0 +1,10 @@
+
+---
+
+spring:
+  application:
+    name: backend-sts
+
+logging:
+  level: 
+    root: INFO
