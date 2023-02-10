@@ -27,6 +27,7 @@ import org.apache.cxf.sts.operation.TokenIssueOperation;
 import org.apache.cxf.sts.operation.TokenValidateOperation;
 import org.apache.cxf.sts.service.StaticService;
 import org.apache.cxf.sts.token.delegation.SAMLDelegationHandler;
+import org.apache.cxf.sts.token.provider.ActAsAttributeStatementProvider;
 import org.apache.cxf.sts.token.provider.SAMLTokenProvider;
 import org.apache.cxf.sts.token.validator.SAMLTokenValidator;
 import org.apache.cxf.transport.http_jetty.JettyHTTPServerEngineFactory;
@@ -145,7 +146,10 @@ String serviceKeystorePropertyfile = "serviceKeystore.properties";
 
     @Bean
     public SAMLTokenProvider utSamlTokenProvider() {
-        return new SAMLTokenProvider();
+        SAMLTokenProvider samlTokenProvider = new SAMLTokenProvider();
+        samlTokenProvider.setConditionsProvider(new DelegationConditionsProvider());
+        samlTokenProvider.setAttributeStatementProviders(Arrays.asList(new CustomActAsAttributeStatementProvider()));
+        return samlTokenProvider;
     }
     
     @Bean
