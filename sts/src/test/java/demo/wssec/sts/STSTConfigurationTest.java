@@ -27,7 +27,6 @@ import org.apache.cxf.sts.operation.TokenIssueOperation;
 import org.apache.cxf.sts.operation.TokenValidateOperation;
 import org.apache.cxf.sts.service.StaticService;
 import org.apache.cxf.sts.token.delegation.SAMLDelegationHandler;
-import org.apache.cxf.sts.token.provider.ActAsAttributeStatementProvider;
 import org.apache.cxf.sts.token.provider.SAMLTokenProvider;
 import org.apache.cxf.sts.token.validator.SAMLTokenValidator;
 import org.apache.cxf.transport.http_jetty.JettyHTTPServerEngineFactory;
@@ -35,11 +34,9 @@ import org.apache.cxf.ws.security.sts.provider.SecurityTokenServiceProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.eclipse.jetty.util.log.Log;
-import org.eclipse.jetty.util.log.Slf4jLog;
 
 @Configuration
-public class STSTConfiguration {
+public class STSTConfigurationTest {
 
     String stsIssuerName = "Backend_STS";
     int port = 8090; // Must match in WSLD
@@ -53,7 +50,7 @@ public class STSTConfiguration {
     String keystoreLocation = "/keys/sts.jks";
     String keystorePassword = "sts-passwd";
     String keyPassword = "sts-passwd";
-    QName portName = new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/", "UT_Port");
+    QName portName = new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/", "STS_Port");
     QName serviceName = new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/", "SecurityTokenService");
     // String bindingUri = "{http://schemas.xmlsoap.org/wsdl/}Greeter_SOAPBinding";
 
@@ -67,10 +64,12 @@ public class STSTConfiguration {
     }
 
     @Bean
-    LoggingFeature loggingFeature() {
-        LoggingFeature loggingFeature = new LoggingFeature();
-        loggingFeature.setPrettyLogging(true);
-        return loggingFeature;
+    public LoggingFeature loggingFeature() {
+
+        LoggingFeature loggingfeature = new LoggingFeature();
+        loggingfeature.setPrettyLogging(true);
+
+        return loggingfeature;
     }
 
     public static TrustManager[] getTrustManagers(KeyStore trustStore)
@@ -95,26 +94,26 @@ public class STSTConfiguration {
     @Bean
     JettyHTTPServerEngineFactory jettyHTTPServerEngineFactory() throws IOException, GeneralSecurityException {
         JettyHTTPServerEngineFactory jettyHTTPServerEngineFactory = new JettyHTTPServerEngineFactory();
-        jettyHTTPServerEngineFactory.setTLSServerParametersForPort(port, tlsServerParameters());
+        // jettyHTTPServerEngineFactory.setTLSServerParametersForPort(port, tlsServerParameters());
         jettyHTTPServerEngineFactory.setBus(cxf(loggingFeature()));
         return jettyHTTPServerEngineFactory;
     }
 
-    @Bean
-    TLSServerParameters tlsServerParameters() throws IOException, GeneralSecurityException {
-        TLSServerParameters tlsServerParameters = new TLSServerParameters();
-        // TODO has to be checked in production
+    // @Bean
+    // TLSServerParameters tlsServerParameters() throws IOException, GeneralSecurityException {
+    //     TLSServerParameters tlsServerParameters = new TLSServerParameters();
+    //     // TODO has to be checked in production
 
-        KeyStore keyStore = KeyStore.getInstance("JKS");
-        keyStore.load(STSTConfiguration.class.getResourceAsStream(keystoreLocation), keystorePassword.toCharArray());
-        KeyManager[] keyManagers = getKeyManagers(keyStore, keyPassword);
-        tlsServerParameters.setKeyManagers(keyManagers);
-        KeyStore trustStore = KeyStore.getInstance("JKS");
-        trustStore.load(STSTConfiguration.class.getResourceAsStream(keystoreLocation),
-                keystorePassword.toCharArray());
-        tlsServerParameters.setTrustManagers(getTrustManagers(trustStore));
-        return tlsServerParameters;
-    }
+    //     KeyStore keyStore = KeyStore.getInstance("JKS");
+    //     keyStore.load(STSTConfiguration.class.getResourceAsStream(keystoreLocation), keystorePassword.toCharArray());
+    //     KeyManager[] keyManagers = getKeyManagers(keyStore, keyPassword);
+    //     tlsServerParameters.setKeyManagers(keyManagers);
+    //     KeyStore trustStore = KeyStore.getInstance("JKS");
+    //     trustStore.load(STSTConfiguration.class.getResourceAsStream(keystoreLocation),
+    //             keystorePassword.toCharArray());
+    //     tlsServerParameters.setTrustManagers(getTrustManagers(trustStore));
+    //     return tlsServerParameters;
+    // }
 
     @Bean
     public StaticSTSProperties utSTSProperties() {
@@ -182,7 +181,7 @@ public class STSTConfiguration {
     }
 
     @Bean
-    public Endpoint endpoint() throws Exception {
+    public Endpoint stsEndpoint() throws Exception {
         EndpointImpl endpoint = new EndpointImpl(cxf(loggingFeature()), utSTSProviderBean());
         final Map<String, Object> propertyMap = new HashMap<String, Object>();
         propertyMap.put("security.callback-handler", stsCallbackHandler());
@@ -199,8 +198,8 @@ public class STSTConfiguration {
         endpoint.getServerFactory().getJaxWsServiceFactory()
                 .setWsFeatures(Arrays.asList(new AddressingFeature(), loggingFeature()));
         endpoint.publish(serverAddress);
-        endpoint.setServiceName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/", "SecurityTokenService"));
-        endpoint.setEndpointName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/", "UT_Port"));
+        endpoint.setServiceName(serviceName);
+        endpoint.setEndpointName(portName);
         ;
 
         return endpoint;

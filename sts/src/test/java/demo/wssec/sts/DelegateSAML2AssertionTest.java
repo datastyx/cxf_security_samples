@@ -265,7 +265,7 @@ public class DelegateSAML2AssertionTest {
         assertTrue(tokenString.contains(ClaimTypes.LASTNAME.toString()));
     }
 
-    private Element getSAMLAssertion(String assertionSamlVersion) throws Exception {
+    public Element getSAMLAssertion(String assertionSamlVersion) throws Exception {
         TokenProvider samlTokenProvider = new SAMLTokenProvider();
         TokenProviderParameters providerParameters = createProviderParameters(assertionSamlVersion,
                 STSConstants.BEARER_KEY_KEYTYPE, null);

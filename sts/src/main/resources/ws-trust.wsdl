@@ -348,7 +348,7 @@
         <!-- <wsdl:port name="UT_PortSoap11Endpoint" binding="tns:Transport_Binding">
             <soap:address location="https://localhost:8090/SecurityTokenService/UT" />
         </wsdl:port> -->
-        <wsdl:port name="UT_Port" binding="tns:Transport_Binding">
+        <wsdl:port name="STS_Port" binding="tns:Transport_Binding">
             <soap12:address location="https://localhost:8090/SecurityTokenService/UT" />
         </wsdl:port>
     </wsdl:service>

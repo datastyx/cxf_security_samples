@@ -5,13 +5,11 @@ import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.KeyManager;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.WebServiceFeature;
 import javax.xml.ws.soap.AddressingFeature;
 
 import org.apache.cxf.Bus;
@@ -19,9 +17,7 @@ import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
 import org.apache.cxf.configuration.jsse.TLSServerParameters;
 import org.apache.cxf.ext.logging.LoggingFeature;
-import org.apache.cxf.feature.Feature;
 import org.apache.cxf.jaxws.EndpointImpl;
-import org.apache.cxf.transport.http_jetty.JettyHTTPServerEngine;
 import org.apache.cxf.transport.http_jetty.JettyHTTPServerEngineFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -45,11 +41,18 @@ public class ServerConfiguration {
 
 String serviceKeystorePropertyfile = "serviceKeystore.properties";
 
-    @Autowired
-    LoggingFeature loggingFeature;
 
     @Autowired
     Bus cxf;
+
+    @Bean
+    public LoggingFeature loggingFeature() {
+  
+        LoggingFeature loggingfeature = new LoggingFeature();
+      loggingfeature.setPrettyLogging(true);
+  
+      return loggingfeature;
+    }
 
     @Bean
     JettyHTTPServerEngineFactory jettyHTTPServerEngineFactory() throws IOException, GeneralSecurityException {
@@ -87,7 +90,7 @@ String serviceKeystorePropertyfile = "serviceKeystore.properties";
         propertyMap.put(javax.xml.ws.Endpoint.WSDL_SERVICE, serviceName);
         endpoint.setProperties(propertyMap);
         endpoint.setWsdlLocation(wsdlPath);
-        endpoint.getServerFactory().getJaxWsServiceFactory().setWsFeatures(Arrays.asList(new AddressingFeature(),loggingFeature));
+        endpoint.getServerFactory().getJaxWsServiceFactory().setWsFeatures(Arrays.asList(new AddressingFeature(),loggingFeature()));
         endpoint.getInInterceptors().add(new SAAJInInterceptor());
         endpoint.getOutInterceptors().add(new SAAJOutInterceptor());
         endpoint.publish(serverAddress);
